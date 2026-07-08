@@ -1,0 +1,8 @@
+# The ServiceAccount whose projected token proves the pod's identity to ASTIS.
+# Its name (here: hr-portal) is part of the API-key workload binding and is
+# cross-checked against the SA JWT `sub` claim server-side.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: hr-portal
+  namespace: hr-portal-demo

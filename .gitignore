@@ -1,0 +1,26 @@
+# Never commit plaintext or credentials
+*.plaintext
+*.plain
+api-key.txt
+*-api-key.yaml
+**/secrets/*-real.yaml
+
+# Synthetic ciphertext for demos IS allowed to be committed intentionally:
+#   *.example.yaml, overlays/**/encrypted-properties.yaml, *.sealed (synthetic)
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+# OS / editor
+.DS_Store
+*.swp
+
+# Java build output
+target/
+
+# Go build output
+examples/pod-workload-secret/go/go

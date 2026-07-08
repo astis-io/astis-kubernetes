@@ -1,0 +1,27 @@
+server:
+  port: 8080
+
+astis:
+  api-url: ${ASTIS_API_URL:https://api.astis.io}
+  # No declared identity (RFC-020 §12.2): the binding lives on the API key; the
+  # gateway derives namespace/serviceaccount/pod from the verified SA JWT.
+  secrets:
+    enabled: ${ASTIS_SECRETS_ENABLED:true}
+    # Each mapping: a Spring property fed from a sealed envelope mounted in the pod.
+    # The EnvironmentPostProcessor decrypts these BEFORE the context is built, so the
+    # DataSource connection factory consumes them with no code change.
+    mappings:
+      - property: spring.datasource.username
+        envelope-path: ${ASTIS_DB_USER_ENVELOPE:/etc/astis-sealed/db-user}
+      - property: spring.datasource.password
+        envelope-path: ${ASTIS_DB_PASS_ENVELOPE:/etc/astis-sealed/db-password}
+
+# url is NOT secret and is committed normally. username + password arrive decrypted
+# from ASTIS at startup (see astis.secrets.mappings). Spring autoconfigures the Hikari
+# pool from these — no factory code.
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://db.example.com:5432/postgres?sslmode=prefer}
+    hikari:
+      connection-timeout: 5000
+      initialization-fail-timeout: -1   # don't crash the app if the DB is briefly down

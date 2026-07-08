@@ -1,0 +1,4 @@
+# ASTIS Workload Secret client — only dependency is `cryptography` for the
+# X25519 / Ed25519 / AES-GCM / ChaCha20-Poly1305 primitives. The RFC 9180 HPKE
+# layer is implemented in astis_workload.py on top of these primitives.
+cryptography>=42,<49

@@ -1,0 +1,7 @@
+{
+  "recip_priv": "8E73CBxFVggmEGpiyOB8jqQBNnCfw2BpilQxVbz74l0=",
+  "rewrap_enc": "RboyuPJZ92Fr1IT3lCGjMu8yh6EzslQvjjj6+/igOhY=",
+  "rewrap_hpke_ct": "G1cvoHDf15SNRDGPwtP+ggadDGYBcfaEtnCX80/pD8VBTrQqYvQ8Rx0CKqHil0FI",
+  "envelope_wire": "ASTIS:v2:eyJhbGciOiAiaHBrZS14MjU1MTkrYWVzLTI1Ni1nY20iLCAia2VrX3JlZiI6ICJrZWsta2F0LTEiLCAicmVxdWVzdF9pZCI6ICJyZXEta2F0LTEiLCAiZW5jYXBfYjY0IjogInVudXNlZC1pbi1rYXQiLCAid3JhcHBlZF9kZWtfYjY0IjogInVudXNlZC1pbi1rYXQiLCAid29ya2xvYWRfYmluZGluZyI6IHsiY2x1c3Rlcl9pZCI6ICJwcm9kLWV1IiwgIm5hbWVzcGFjZSI6ICJoci1wb3J0YWwtZGVtbyIsICJzZXJ2aWNlYWNjb3VudCI6ICJoci1wb3J0YWwifSwgImNpcGhlcnRleHQiOiAiYnpyb2hKR25IZkpac1p5dnIrUmtPcFdjcW5JdGtGbTZNbkp6alQrdHFnPT0iLCAiaXYiOiAiSGVQdnJhb2tScWM4T2V3biIsICJ0YWciOiAiRUcyR01Hb3Yxd21aSXZWMDdxZ3FDdz09In0",
+  "expect": "jdbc-password-do-not-share-9981"
+}

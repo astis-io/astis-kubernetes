@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hr-portal
+  namespace: hr-portal-demo
+  labels:
+    app: hr-portal
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hr-portal
+  template:
+    metadata:
+      labels:
+        app: hr-portal
+    spec:
+      # The SA whose projected token (below) proves pod identity to ASTIS.
+      serviceAccountName: hr-portal
+      containers:
+        - name: hr-portal
+          # Build from app/Dockerfile and push to your registry. Pin by digest so
+          # the running image matches the digest you approve in the portal (Layer 4).
+          image: registry.example.com/hr-portal:1.0 # @sha256:<approve-this-in-portal>
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: PYTHONUNBUFFERED
+              value: "1"
+            # The client declares NO identity (RFC-020 §12.2): cluster comes from the
+            # API-key binding, namespace/serviceaccount/pod from the verified SA JWT.
+            - name: ASTIS_API_URL
+              value: "https://api.astis.io"
+          volumeMounts:
+            - name: api-key # the bound API key (Layer 1)
+              mountPath: /etc/astis
+              readOnly: true
+            - name: sealed-envelope # ciphertext only
+              mountPath: /etc/astis-sealed
+              readOnly: true
+            - name: astis-audience # projected SA token, audience=astis.io (Layer 2)
+              mountPath: /var/run/secrets/astis-audience
+              readOnly: true
+      volumes:
+        - name: api-key
+          secret:
+            secretName: astis-api-key
+        - name: sealed-envelope
+          secret:
+            secretName: astis-sealed-db-password
+        - name: astis-audience
+          projected:
+            sources:
+              - serviceAccountToken:
+                  audience: astis.io
+                  expirationSeconds: 3600
+                  path: token
