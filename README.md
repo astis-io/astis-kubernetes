@@ -33,15 +33,12 @@ Examples are self-contained and runnable. Each carries its own copy of the pod
 client and conforms to the `ASTIS:v2` wire contract — correctness is proven against
 the live `api.astis.io`, not by importing the SDK.
 
-## Roadmap (not yet present — added when work starts)
+## What's next
 
-- `examples/pod-workload-secret/overlays/{dev,staging,prod}` — GitOps demo: distinct
-  synthetic ciphertext committed per environment (ciphertext is safe to version; the
-  API key is not).
-- `integrations/external-secrets` — ESO provider (native Secret **compatibility** mode;
-  weaker trust boundary — plaintext lands in `etcd`).
-- `integrations/csi` — CSI / mounted-file delivery (no native Secret).
-- `charts/astis-workload-secrets` — Helm chart.
+More delivery modes are planned — a Helm chart, per-environment GitOps overlays,
+ESO / CSI integrations. Need one sooner?
+[Open an issue](https://github.com/astis-io/astis-kubernetes/issues) — real demand
+moves things up the list.
 
 ## Conventions
 
