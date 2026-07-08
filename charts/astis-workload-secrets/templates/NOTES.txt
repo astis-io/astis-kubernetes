@@ -1,0 +1,21 @@
+{{ include "astis-workload-secrets.name" . }} deployed to namespace {{ include "astis-workload-secrets.namespace" . }}.
+
+Before the pod can unseal anything, make sure (one-time, out-of-band):
+
+  1. The cluster is registered in the portal (OIDC issuer + JWKS + read-only get-pods token).
+  2. A workload-bound API key exists in the Secret "{{ .Values.astis.apiKeySecret }}"
+     (key: api-key), bound to cluster / {{ include "astis-workload-secrets.namespace" . }} / {{ include "astis-workload-secrets.serviceAccountName" . }}.
+  3. The running image digest is approved in the portal (Layer 4, strict / fail-closed).
+{{- if not .Values.astis.sealedSecrets }}
+
+  NOTE: astis.sealedSecrets is empty — no envelopes are mounted yet. Seal one:
+    vault kv get -field=pwd secret/db | astis-cli --secret-id db-password
+  then create the Secret and add it to astis.sealedSecrets.
+{{- end }}
+
+Verify the boundary yourself:
+
+  kubectl -n {{ include "astis-workload-secrets.namespace" . }} get secret {{ (first (default (list (dict "secretName" "your-sealed-secret")) .Values.astis.sealedSecrets)).secretName }} -o jsonpath='{.data}' | base64 -d
+  # -> ASTIS:v2:… ciphertext, not a usable secret
+
+Docs: https://astis.io/workload-secrets/quickstart · Clients: https://github.com/astis-io/astis-sdk

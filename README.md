@@ -29,13 +29,19 @@ This repo answers **"how do I run ASTIS in a cluster?"**. Related:
 |---|---|---|
 | [pod-workload-secret](./examples/pod-workload-secret/) | ✅ ready | An app inside a pod decrypts its secret in pod RAM (RFC-020). Passive cluster/Git/etcd access sees ciphertext only. Self-contained; proven by live round trip. |
 
+## Charts
+
+| Chart | Status | What it deploys |
+|---|---|---|
+| [astis-workload-secrets](./charts/astis-workload-secrets/) | ✅ ready | Your workload wired for ASTIS: bound API key + projected SA token + sealed envelopes, both integration paths (SDK in code, or `astis-exec` for unmodified apps). Same wiring as the example, templated. |
+
 Examples are self-contained and runnable. Each carries its own copy of the pod
 client and conforms to the `ASTIS:v2` wire contract — correctness is proven against
 the live `api.astis.io`, not by importing the SDK.
 
 ## What's next
 
-More delivery modes are planned — a Helm chart, per-environment GitOps overlays,
+More delivery modes are planned — per-environment GitOps overlays,
 ESO / CSI integrations. Need one sooner?
 [Open an issue](https://github.com/astis-io/astis-kubernetes/issues) — real demand
 moves things up the list.

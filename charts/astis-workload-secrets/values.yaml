@@ -1,0 +1,71 @@
+# Default values for astis-workload-secrets.
+#
+# The chart deploys YOUR workload wired for ASTIS: bound API key + projected SA
+# token + sealed envelopes mounted read-only; the pod decrypts in RAM after
+# attestation (RFC-020 §12.2 — the client declares no identity; the binding
+# lives on the API key).
+#
+# It does NOT create the API key or the sealed envelopes — create those
+# out-of-band (portal + astis-cli / SDK seal helper) and reference them here.
+# Never put plaintext or a real API key into values files.
+
+nameOverride: ""
+
+namespace:
+  # Create the Namespace object (set false when deploying into an existing one).
+  create: false
+  name: default
+
+serviceAccount:
+  # The ServiceAccount is the workload identity: one per service. Its name is
+  # part of the API-key binding and is cross-checked against the SA JWT.
+  create: true
+  name: ""   # defaults to the release name
+
+replicas: 1
+
+image:
+  repository: registry.example.com/my-app
+  tag: "1.0"
+  # Pin by digest so the running image matches the digest approved in the
+  # portal (Layer 4). When set, digest takes precedence over tag.
+  digest: ""
+  pullPolicy: IfNotPresent
+
+# Container command. Leave empty when your app uses an ASTIS SDK in code
+# (Path B). For an unmodified app (Path A), wrap it with astis-exec, e.g.:
+#   command: ["astis-exec", "--fork", "--", "./my-app"]
+command: []
+args: []
+
+astis:
+  apiUrl: https://api.astis.io
+  # Existing Secret holding the bound API key under the key `api-key`
+  # (mounted at /etc/astis/api-key).
+  apiKeySecret: astis-api-key
+  # Projected ServiceAccount token (Layer 2).
+  audience: astis.io
+  tokenExpirationSeconds: 3600
+  # Sealed envelopes to mount under /etc/astis-sealed/<fileName>. Each entry
+  # references an existing Secret whose value is the ASTIS:v2:… wire string —
+  # ciphertext, safe to store in the cluster.
+  sealedSecrets: []
+  #  - secretName: astis-sealed-db-password
+  #    key: envelope
+  #    fileName: db-password
+  #  - secretName: astis-sealed-db-user
+  #    key: envelope
+  #    fileName: db-user
+
+# Plain (non-secret) configuration for your app — DB hosts, ports, flags.
+# Secrets do not belong here; they arrive as sealed envelopes above.
+env: []
+#  - name: DB_HOST
+#    value: db.example.com
+
+podLabels: {}
+podAnnotations: {}
+resources: {}
+nodeSelector: {}
+tolerations: []
+affinity: {}

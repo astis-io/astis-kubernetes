@@ -1,0 +1,22 @@
+apiVersion: v2
+name: astis-workload-secrets
+description: >-
+  Deploy a workload wired for ASTIS Workload Secrets (RFC-020): the pod decrypts
+  its sealed secrets in RAM after workload attestation; everything stored in the
+  cluster stays ciphertext. Templates the same wiring as the pod-workload-secret
+  example in this repository.
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+home: https://astis.io/workload-secrets
+sources:
+  - https://github.com/astis-io/astis-kubernetes
+  - https://github.com/astis-io/astis-sdk
+keywords:
+  - secrets
+  - encryption
+  - zero-knowledge
+  - workload-identity
+maintainers:
+  - name: ASTIS
+    email: support@astis.io

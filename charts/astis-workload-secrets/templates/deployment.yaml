@@ -1,0 +1,104 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "astis-workload-secrets.name" . }}
+  namespace: {{ include "astis-workload-secrets.namespace" . }}
+  labels:
+    {{- include "astis-workload-secrets.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicas }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "astis-workload-secrets.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "astis-workload-secrets.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      # The SA whose projected token (below) proves pod identity to ASTIS.
+      serviceAccountName: {{ include "astis-workload-secrets.serviceAccountName" . }}
+      containers:
+        - name: {{ include "astis-workload-secrets.name" . }}
+          # Pin by digest (image.digest) so the running image matches the digest
+          # approved in the portal (Layer 4).
+          image: {{ include "astis-workload-secrets.image" . }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- with .Values.command }}
+          command:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.args }}
+          args:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          env:
+            # The client declares NO identity (RFC-020 §12.2): cluster comes from
+            # the API-key binding, namespace/serviceaccount/pod from the SA JWT.
+            - name: ASTIS_API_URL
+              value: {{ .Values.astis.apiUrl | quote }}
+            {{- with .Values.env }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          volumeMounts:
+            - name: astis-api-key # the bound API key (Layer 1)
+              mountPath: /etc/astis
+              readOnly: true
+            {{- if .Values.astis.sealedSecrets }}
+            - name: astis-sealed # ciphertext only
+              mountPath: /etc/astis-sealed
+              readOnly: true
+            {{- end }}
+            - name: astis-audience # projected SA token, audience={{ .Values.astis.audience }} (Layer 2)
+              mountPath: /var/run/secrets/astis-audience
+              readOnly: true
+          {{- with .Values.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      volumes:
+        - name: astis-api-key
+          secret:
+            secretName: {{ .Values.astis.apiKeySecret }}
+            items:
+              - key: api-key
+                path: api-key
+        {{- if .Values.astis.sealedSecrets }}
+        - name: astis-sealed
+          projected:
+            sources:
+              {{- range .Values.astis.sealedSecrets }}
+              - secret:
+                  name: {{ .secretName }}
+                  items:
+                    - key: {{ .key | default "envelope" }}
+                      path: {{ .fileName }}
+              {{- end }}
+        {{- end }}
+        - name: astis-audience
+          projected:
+            sources:
+              - serviceAccountToken:
+                  audience: {{ .Values.astis.audience }}
+                  expirationSeconds: {{ .Values.astis.tokenExpirationSeconds }}
+                  path: token
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
